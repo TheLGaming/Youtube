@@ -1,0 +1,256 @@
+<html>
+
+  <head>
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="5.css">
+    <script src="jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.11.4/paper-full.min.js"></script>
+    <script>
+
+function animationClick(element, animation){
+  element = $(element);
+  element.click(
+function() {
+  element.addClass('animated ' + animation);
+  window.setTimeout( function(){
+  element.removeClass('animated ' + animation);
+}, 2000);
+});
+}
+function animationHover(element, animation){
+  element = $(element);
+  element.hover(
+  function() {
+  element.addClass('animated ' + animation);
+},
+function(){
+  window.setTimeout( function(){
+  element.removeClass('animated ' + animation);
+}, 2000);
+});
+}
+
+$(document).ready(function(){
+
+$('#hover').each(function() {
+animationHover(this, 'fadein');
+});
+
+});
+
+$(document).ready(function(){
+
+$('#hover4').each(function() {
+animationHover(this, 'fadein');
+});
+
+});
+
+$(document).ready(function(){
+
+$('#hover1').each(function() {
+animationHover(this, 'fadein');
+});
+
+});
+
+$(document).ready(function(){
+
+$('#logo').each(function() {
+animationClick(this, 'fadein');
+});
+
+
+});
+
+$(document).ready(function(){
+
+$('#hover2').each(function() {
+animationHover(this, 'fadein');
+});
+
+});
+$(document).ready(function(){
+
+$('#hover3').each(function() {
+animationHover(this, 'fadein');
+});
+
+});
+
+    </script>
+
+    <script type="text/paperscript" canvas="canvas"></script>
+    <script type="text/paperscript" canvas="canvas">
+    // kynd.info 2014
+
+function Ball(r, p, v) {
+  this.radius = r;
+  this.point = p;
+  this.vector = v;
+  this.maxVec = 15;
+  this.numSegment = Math.floor(r / 3 + 2);
+  this.boundOffset = [];
+  this.boundOffsetBuff = [];
+  this.sidePoints = [];
+  this.path = new Path({
+    fillColor: {
+      hue: Math.random() * 360,
+      saturation: 1,
+      brightness: 1
+    },
+    blendMode: 'screen'
+  });
+
+  for (var i = 0; i < this.numSegment; i ++) {
+    this.boundOffset.push(this.radius);
+    this.boundOffsetBuff.push(this.radius);
+    this.path.add(new Point());
+    this.sidePoints.push(new Point({
+      angle: 360 / this.numSegment * i,
+      length: 1
+    }));
+  }
+}
+
+Ball.prototype = {
+  iterate: function() {
+    this.checkBorders();
+    if (this.vector.length > this.maxVec)
+      this.vector.length = this.maxVec;
+    this.point += this.vector;
+    this.updateShape();
+  },
+
+  checkBorders: function() {
+    var size = view.size;
+    if (this.point.x < -this.radius)
+      this.point.x = size.width + this.radius;
+    if (this.point.x > size.width + this.radius)
+      this.point.x = -this.radius;
+    if (this.point.y < -this.radius)
+      this.point.y = size.height + this.radius;
+    if (this.point.y > size.height + this.radius)
+      this.point.y = -this.radius;
+  },
+
+  updateShape: function() {
+    var segments = this.path.segments;
+    for (var i = 0; i < this.numSegment; i ++)
+      segments[i].point = this.getSidePoint(i);
+
+    this.path.smooth();
+    for (var i = 0; i < this.numSegment; i ++) {
+      if (this.boundOffset[i] < this.radius / 4)
+        this.boundOffset[i] = this.radius / 4;
+      var next = (i + 1) % this.numSegment;
+      var prev = (i > 0) ? i - 1 : this.numSegment - 1;
+      var offset = this.boundOffset[i];
+      offset += (this.radius - offset) / 15;
+      offset += ((this.boundOffset[next] + this.boundOffset[prev]) / 2 - offset) / 3;
+      this.boundOffsetBuff[i] = this.boundOffset[i] = offset;
+    }
+  },
+
+  react: function(b) {
+    var dist = this.point.getDistance(b.point);
+    if (dist < this.radius + b.radius && dist != 0) {
+      var overlap = this.radius + b.radius - dist;
+      var direc = (this.point - b.point).normalize(overlap * 0.015);
+      this.vector += direc;
+      b.vector -= direc;
+
+      this.calcBounds(b);
+      b.calcBounds(this);
+      this.updateBounds();
+      b.updateBounds();
+    }
+  },
+
+  getBoundOffset: function(b) {
+    var diff = this.point - b;
+    var angle = (diff.angle + 180) % 360;
+    return this.boundOffset[Math.floor(angle / 360 * this.boundOffset.length)];
+  },
+
+  calcBounds: function(b) {
+    for (var i = 0; i < this.numSegment; i ++) {
+      var tp = this.getSidePoint(i);
+      var bLen = b.getBoundOffset(tp);
+      var td = tp.getDistance(b.point);
+      if (td < bLen) {
+        this.boundOffsetBuff[i] -= (bLen  - td) / 2;
+      }
+    }
+  },
+
+  getSidePoint: function(index) {
+    return this.point + this.sidePoints[index] * this.boundOffset[index];
+  },
+
+  updateBounds: function() {
+    for (var i = 0; i < this.numSegment; i ++)
+      this.boundOffset[i] = this.boundOffsetBuff[i];
+  }
+};
+
+//--------------------- main ---------------------
+
+var balls = [];
+var numBalls = 18;
+for (var i = 0; i < numBalls; i++) {
+  var position = Point.random() * view.size;
+  var vector = new Point({
+    angle: 360 * Math.random(),
+    length: Math.random() * 10
+  });
+  var radius = Math.random() * 60 + 60;
+  balls.push(new Ball(radius, position, vector));
+}
+
+function onFrame() {
+  for (var i = 0; i < balls.length - 1; i++) {
+    for (var j = i + 1; j < balls.length; j++) {
+      balls[i].react(balls[j]);
+    }
+  }
+  for (var i = 0, l = balls.length; i < l; i++) {
+    balls[i].iterate();
+  }
+}
+
+</script>
+
+  </head>
+
+  <body background = "https://s-media-cache-ak0.pinimg.com/originals/b4/02/3b/b4023bea919bff9e42c85f091bc95f8d.jpg">
+      <ul class="menu">
+      <li id="hover" class="menu-item"><a href="home.html"><b> Home </b></a></li>
+      <li id="hover1" class="menu-item"><a href="boutgame.html"> Gaming </a></li>
+      <li id="hover2" class="menu-item"><a href="boutsports.html"> Sports </a></li>
+      <li id="hover4" class="menu-item"><a href="boutiv.html"> Activities </a></li>
+
+      <br>
+      <h2 id="hoverBounce" class="title">Home</h2>
+    </ul>
+  <table>
+    <td>
+      <canvas id="canvas" resize></canvas>
+    </td>
+  </table>
+  <h3>Hi, I'm Xavier and I have made websites before because I have a web design class
+  at school. It is a class that does basic html, css, and javascript every year getting
+  slightly more advanced every year. Yet when I joined this camp I refreshed all my knowledge
+  of html and css and even learned good amout of knowledge. In addition, I learned about some
+  websites that have cool javascript showcases so I can also learn from that.
+  </h3>
+  <a class="logoLink" href="https://twitter.com/realDonaldTrump?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"><img src="https://g.twimg.com/about/feature-corporate/image/twitterbird_RGB.png" width="50px" height="50px"></img></a>
+  <a class="logoLink" href="https://www.instagram.com/realdonaldtrump/?hl=en" width="50px" height="50px"><img src="https://www.seeklogo.net/wp-content/uploads/2016/06/Instagram-logo.png" width="60px" height="60px"></img></a>
+    <a href="mailto:thex86@yahoo.com"><button id="mail">Email me!</button></a>
+  <div controls hidden>
+  <audio class="logoLink" controls autoplay>
+    <source src="song.mp3" type="audio/mpeg">
+  </audio>
+  </body>
+
+</html>

@@ -1,0 +1,53 @@
+.menu
+{
+  color: red;
+  list-style-type: none;
+  margin: ;
+  padding: ;
+  overflow: hidden;
+  background-color: black;
+}
+
+.menu-item
+{
+  float: left;
+  margin: 10px;
+  padding: 10px;
+}
+
+.menu-item a
+{
+  color: #00ff00;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 14px 16px;
+}
+
+.menu-item a:hover
+{
+  background: #262626;
+  border-radius: 0px;
+  border-color: #666;
+  font-family: helvetica;
+  box-shadow: 5px 5px 5px #00ff00;
+}
+
+h1
+{
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 50px;
+  text-align: center;
+}
+
+#canvas
+{
+  height: 100%;
+  width: 100%;
+}
+
+/*Blue: #19B5FE
+  Red: #D91E18
+  Purple: #9A12B3
+  Orange: #E87E04
