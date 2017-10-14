@@ -187,8 +187,8 @@ function onFrame() {
     <ul class="menu">
       <li id="hover" class="menu-item"><a href="Home.html"><b> Home </b></a></li>
       <li id="hover1" class="menu-item"><a href="TGamingL.html"> Gaming </a></li>
-      <li id="hover2" class="menu-item"><a href="boutsports.html"> Naanman </a></li>
-      <li id="hover4" class="menu-item"><a href="boutiv.html"> Contact </a></li>
+      <li id="hover2" class="menu-item"><a href="Naanmen.html"> Naanman </a></li>
+      <li id="hover4" class="menu-item"><a href="TGLContact.html"> Contact </a></li>
       <br>
       <h2 id="hoverBounce" class="title">Home</h2>
     </ul>
